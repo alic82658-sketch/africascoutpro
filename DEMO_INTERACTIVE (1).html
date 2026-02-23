@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AfricaScoutPro - Démo Test QI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(180deg, #0A0D1A 0%, #12172B 100%);
+            color: white;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .icon {
+            font-size: 4rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: bounce 2s infinite;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #FFFFFF, #00D9FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            color: #A8B2D1;
+            font-size: 1.125rem;
+            line-height: 1.7;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem 2rem;
+            font-size: 1.125rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #00D9FF, #7C3AED);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 217, 255, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .input-group {
+            margin-bottom: 2rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #A8B2D1;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.125rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #00D9FF;
+            box-shadow: 0 0 0 4px rgba(0, 217, 255, 0.1);
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            color: #A8B2D1;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-track {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00D9FF, #7C3AED);
+            transition: width 0.5s ease;
+        }
+
+        .question {
+            margin-bottom: 2rem;
+        }
+
+        .scenario {
+            font-size: 1.125rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .option {
+            min-height: 64px;
+            padding: 1rem 1.25rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            color: white;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .option:hover {
+            border-color: #00D9FF;
+            background: rgba(0, 217, 255, 0.1);
+            transform: translateX(4px);
+        }
+
+        .option:active {
+            transform: scale(0.98);
+        }
+
+        .loading {
+            text-align: center;
+        }
+
+        .checks {
+            margin: 2rem 0;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: #A8B2D1;
+            margin-bottom: 0.75rem;
+            opacity: 0;
+            animation: checkAppear 0.3s forwards;
+        }
+
+        .check-item:nth-child(1) { animation-delay: 0s; }
+        .check-item:nth-child(2) { animation-delay: 0.2s; }
+        .check-item:nth-child(3) { animation-delay: 0.4s; }
+        .check-item:nth-child(4) { animation-delay: 0.6s; }
+        .check-item:nth-child(5) { animation-delay: 0.8s; }
+
+        @keyframes checkAppear {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .check-icon {
+            font-size: 1.5rem;
+            color: #00D9FF;
+        }
+
+        .dots {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: #00D9FF;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .result {
+            text-align: center;
+        }
+
+        .score-circle {
+            width: 160px;
+            height: 160px;
+            margin: 2rem auto;
+            position: relative;
+        }
+
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            background: linear-gradient(135deg, #00D9FF, #7C3AED);
+            border-radius: 50%;
+            filter: blur(20px);
+            opacity: 0.5;
+        }
+
+        .score-circle-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1A1F3A, #0A0D1A);
+            border-radius: 50%;
+            border: 4px solid #00D9FF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .score-number {
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00D9FF, #FFB800);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stars {
+            font-size: 2rem;
+            margin: 1rem 0;
+            filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.5));
+        }
+
+        .profile {
+            font-size: 1.5rem;
+            color: #00D9FF;
+            font-weight: 600;
+            margin: 1rem 0;
+        }
+
+        .feedback {
+            color: #A8B2D1;
+            font-size: 1rem;
+            line-height: 1.7;
+            margin: 2rem 0;
+        }
+
+        .info-box {
+            background: rgba(124, 58, 237, 0.1);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .info-box h3 {
+            font-size: 1.125rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-box ul {
+            list-style: none;
+            color: #A8B2D1;
+            font-size: 0.875rem;
+        }
+
+        .info-box li {
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 640px) {
+            .container { padding: 1rem; }
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- INTRO -->
+        <div id="intro" class="screen active">
+            <div class="icon">🧠</div>
+            <h1>Révèle ton intelligence de jeu en 5 minutes</h1>
+            <p>⏱ 5 questions<br>🎯 Ton profil tactique</p>
+            <button class="btn" onclick="goToName()">Commencer le Test →</button>
+        </div>
+
+        <!-- NAME -->
+        <div id="name" class="screen">
+            <h2>Pour personnaliser ton résultat :</h2>
+            <form onsubmit="startQuiz(event)">
+                <div class="input-group">
+                    <label>Ton prénom</label>
+                    <input type="text" id="firstName" placeholder="Ex: Amadou" required minlength="2">
+                </div>
+                <button type="submit" class="btn">Lancer mon Test →</button>
+            </form>
+        </div>
+
+        <!-- QUIZ -->
+        <div id="quiz" class="screen">
+            <div class="progress-bar">
+                <div class="progress-info">
+                    <span>Question <span id="current">1</span>/5</span>
+                    <span id="percent">20%</span>
+                </div>
+                <div class="progress-track">
+                    <div id="progressFill" class="progress-fill" style="width: 20%"></div>
+                </div>
+            </div>
+
+            <div class="question">
+                <p class="scenario" id="scenario"></p>
+                <h2 class="question-text" id="questionText"></h2>
+                <div class="options" id="options"></div>
+            </div>
+        </div>
+
+        <!-- LOADING -->
+        <div id="loading" class="screen">
+            <div class="loading">
+                <h2>Analyse de tes réponses...</h2>
+                <div class="checks">
+                    <div class="check-item">
+                        <span class="check-icon">✓</span>
+                        <span>Lecture de jeu</span>
+                    </div>
+                    <div class="check-item">
+                        <span class="check-icon">✓</span>
+                        <span>Décision</span>
+                    </div>
+                    <div class="check-item">
+                        <span class="check-icon">✓</span>
+                        <span>Scanning</span>
+                    </div>
+                    <div class="check-item">
+                        <span class="check-icon">✓</span>
+                        <span>Tactique</span>
+                    </div>
+                    <div class="check-item">
+                        <span class="check-icon">✓</span>
+                        <span>Sans ballon</span>
+                    </div>
+                </div>
+                <div class="dots">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULT -->
+        <div id="result" class="screen">
+            <div class="result">
+                <div class="icon" style="animation: none;">🎯</div>
+                <h1 style="font-size: 2rem;">Ton Score QI Tactique</h1>
+                <p style="font-size: 0.875rem;">(Indicatif)</p>
+
+                <div class="score-circle">
+                    <div class="score-circle-inner">
+                        <div class="score-number" id="finalScore">87</div>
+                    </div>
+                </div>
+
+                <div class="stars" id="stars">⭐⭐⭐⭐</div>
+                <div style="font-size: 1.25rem; text-transform: capitalize;" id="rarity">Gold</div>
+                <div class="profile" id="profile">🏃 Finisseur Explosif</div>
+
+                <div class="feedback" id="feedback"></div>
+
+                <button class="btn">Voir Ma Carte →</button>
+
+                <div class="info-box">
+                    <h3>🔓 Débloquer ton vrai score</h3>
+                    <ul>
+                        <li>✓ 10 questions approfondies</li>
+                        <li>✓ Score précis garanti</li>
+                        <li>✓ Radar tactique complet</li>
+                        <li>✓ Visible par recruteurs</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                scenario: "Ton équipe perd le ballon en phase offensive.",
+                question: "Tu es milieu de terrain. Que fais-tu EN PREMIER ?",
+                options: [
+                    { text: "Sprinter vers le porteur de balle", points: 5, profile: "Ball Winner" },
+                    { text: "Couper la ligne de passe centrale", points: 10, profile: "Organisateur Défensif" },
+                    { text: "Reculer vers ma défense", points: 6, profile: "Organisateur Défensif" },
+                    { text: "Crier des consignes", points: 7, profile: "Playmaker Créatif" }
+                ]
+            },
+            {
+                scenario: "Ton équipe attaque. Ton attaquant fait un appel en profondeur mais il y a hors-jeu.",
+                question: "Que fais-tu ?",
+                options: [
+                    { text: "Jouer la passe immédiatement", points: 3, profile: "Ailier Percutant" },
+                    { text: "Attendre qu'il revienne en position légale", points: 10, profile: "Playmaker Créatif" },
+                    { text: "Passer à un coéquipier latéral", points: 7, profile: "Organisateur Défensif" },
+                    { text: "Conduire le ballon vers l'avant", points: 6, profile: "Ailier Percutant" }
+                ]
+            },
+            {
+                scenario: "Tu reçois le ballon dos au but à 20 mètres. Un défenseur te colle.",
+                question: "Que fais-tu ?",
+                options: [
+                    { text: "Protéger et jouer une passe rapide", points: 9, profile: "Finisseur Explosif" },
+                    { text: "Tenter un contrôle orienté", points: 6, profile: "Ailier Percutant" },
+                    { text: "Faire une remise en une touche", points: 10, profile: "Playmaker Créatif" },
+                    { text: "Provoquer la faute", points: 5, profile: "Ball Winner" }
+                ]
+            },
+            {
+                scenario: "Ton équipe mène 1-0 à la 85e minute. L'adversaire pousse fort.",
+                question: "Comment gères-tu cette phase ?",
+                options: [
+                    { text: "Garder le ballon avec passes courtes", points: 10, profile: "Organisateur Défensif" },
+                    { text: "Chercher la contre-attaque", points: 7, profile: "Ailier Percutant" },
+                    { text: "Tout le monde en défense", points: 5, profile: "Gardien Moderne" },
+                    { text: "Presser haut pour étouffer", points: 6, profile: "Ball Winner" }
+                ]
+            },
+            {
+                scenario: "L'adversaire conduit vers toi.",
+                question: "Que fais-tu ?",
+                options: [
+                    { text: "Je sors au contact immédiat", points: 6, profile: "Ball Winner" },
+                    { text: "Je recule en canalisant", points: 10, profile: "Organisateur Défensif" },
+                    { text: "J'attends mon coéquipier", points: 9, profile: "Organisateur Défensif" },
+                    { text: "Je fais une faute tactique", points: 7, profile: "Ball Winner" }
+                ]
+            }
+        ];
+
+        let currentQ = 0;
+        let answers = [];
+        let userName = "";
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function goToName() {
+            showScreen('name');
+        }
+
+        function startQuiz(e) {
+            e.preventDefault();
+            userName = document.getElementById('firstName').value;
+            showScreen('quiz');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = questions[currentQ];
+            document.getElementById('scenario').textContent = q.scenario;
+            document.getElementById('questionText').textContent = q.question;
+            document.getElementById('current').textContent = currentQ + 1;
+            document.getElementById('percent').textContent = Math.round(((currentQ + 1) / 5) * 100) + '%';
+            document.getElementById('progressFill').style.width = ((currentQ + 1) / 5) * 100 + '%';
+
+            const optionsEl = document.getElementById('options');
+            optionsEl.innerHTML = '';
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option';
+                btn.textContent = opt.text;
+                btn.onclick = () => selectAnswer(i);
+                optionsEl.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(index) {
+            answers.push(questions[currentQ].options[index]);
+            
+            if (currentQ < 4) {
+                currentQ++;
+                setTimeout(showQuestion, 300);
+            } else {
+                showScreen('loading');
+                setTimeout(showResult, 2000);
+            }
+        }
+
+        function showResult() {
+            let totalPoints = 0;
+            let profileCounts = {};
+
+            answers.forEach(a => {
+                totalPoints += a.points;
+                profileCounts[a.profile] = (profileCounts[a.profile] || 0) + 1;
+            });
+
+            const score = Math.round((totalPoints / 50) * 100);
+            const profile = Object.keys(profileCounts).reduce((a, b) => 
+                profileCounts[a] > profileCounts[b] ? a : b
+            );
+
+            let rarity, stars;
+            if (score >= 85) {
+                rarity = 'gold';
+                stars = '⭐⭐⭐⭐';
+            } else if (score >= 70) {
+                rarity = 'silver';
+                stars = '⭐⭐⭐';
+            } else {
+                rarity = 'bronze';
+                stars = '⭐⭐';
+            }
+
+            const percentile = score >= 80 ? Math.floor(Math.random() * 8) + 12 : Math.floor(Math.random() * 15) + 25;
+
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('stars').textContent = stars;
+            document.getElementById('rarity').textContent = rarity.charAt(0).toUpperCase() + rarity.slice(1);
+            document.getElementById('profile').textContent = '🏃 ' + profile;
+            document.getElementById('feedback').textContent = 
+                `${userName}, ton intelligence de jeu te classe dans les ${percentile}% des meilleurs.`;
+
+            showScreen('result');
+        }
+    </script>
+</body>
+</html>
